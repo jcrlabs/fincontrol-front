@@ -15,7 +15,7 @@ const loginSchema = z.object({
 const registerSchema = z.object({
   name: z.string().min(2, 'Mínimo 2 caracteres'),
   email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Mínimo 6 caracteres'),
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
   confirmPassword: z.string(),
 }).refine((d) => d.password === d.confirmPassword, {
   message: 'Las contraseñas no coinciden',
@@ -38,7 +38,7 @@ export function LoginPage() {
     setLoading(true)
     try {
       const res = await authApi.login(data)
-      login(res.user, res.access_token, res.refresh_token)
+      login(res.user, res.access_token, '')
       navigate('/')
     } catch {
       toast.error('Email o contraseña incorrectos')
@@ -51,7 +51,7 @@ export function LoginPage() {
     setLoading(true)
     try {
       const res = await authApi.register({ email: data.email, password: data.password, name: data.name })
-      login(res.user, res.access_token, res.refresh_token)
+      login(res.user, res.access_token, '')
       toast.success(`Bienvenido, ${res.user.name}`)
       navigate('/')
     } catch {
