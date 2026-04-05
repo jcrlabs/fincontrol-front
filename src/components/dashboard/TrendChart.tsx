@@ -19,7 +19,7 @@ export function TrendChart() {
 
   if (isLoading) return <Skeleton className="h-64 w-full" />
 
-  const chartData = data?.periods.map((p) => ({
+  const chartData = data?.periods?.map((p) => ({
     month: formatMonth(p.month),
     income: p.income,
     expenses: p.expenses,
