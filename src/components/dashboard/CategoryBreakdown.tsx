@@ -14,7 +14,7 @@ export function CategoryBreakdown() {
 
   if (isLoading) return <Skeleton className="h-64 w-full" />
 
-  const chartData = data?.categories.map((c) => ({
+  const chartData = data?.categories?.map((c) => ({
     name: c.name,
     value: c.total,
     percentage: c.percentage,

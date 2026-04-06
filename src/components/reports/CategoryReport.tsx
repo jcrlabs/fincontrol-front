@@ -12,7 +12,7 @@ export function CategoryReport() {
 
   if (isLoading) return <TableSkeleton rows={5} cols={3} />
 
-  const chartData = data?.categories.map((c) => ({ name: c.name, value: c.total })) ?? []
+  const chartData = data?.categories?.map((c) => ({ name: c.name, value: c.total })) ?? []
 
   return (
     <div className="space-y-6">
@@ -41,7 +41,7 @@ export function CategoryReport() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {data?.categories.map((c, i) => (
+              {data?.categories?.map((c, i) => (
                 <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                   <td className="px-4 py-3 text-sm flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full inline-block shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
