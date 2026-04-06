@@ -13,7 +13,7 @@ export function ProfitAndLoss() {
 
   if (isLoading) return <TableSkeleton rows={6} cols={4} />
 
-  const chartData = data?.periods.map((p) => ({
+  const chartData = data?.periods?.map((p) => ({
     month: formatMonth(p.month),
     Ingresos: p.income,
     Gastos: p.expenses,
@@ -62,7 +62,7 @@ export function ProfitAndLoss() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {data?.periods.map((p) => (
+            {data?.periods?.map((p) => (
               <tr key={p.month} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{formatMonth(p.month)}</td>
                 <td className="px-4 py-3 text-sm text-green-600 dark:text-green-400 tabular-nums">{formatMoney(p.income, currency)}</td>

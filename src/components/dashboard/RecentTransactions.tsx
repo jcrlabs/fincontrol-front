@@ -21,7 +21,7 @@ export function RecentTransactions() {
         <TableSkeleton rows={5} cols={3} />
       ) : (
         <div className="space-y-2">
-          {data?.items.map((tx) => {
+          {data?.items?.map((tx) => {
             const debit = tx.entries.filter((e) => e.amount > 0).reduce((s, e) => s + e.amount, 0)
             const firstEntry = tx.entries[0]
             return (
