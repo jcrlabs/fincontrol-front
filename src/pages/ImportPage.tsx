@@ -28,7 +28,10 @@ export function ImportPage() {
       setPreview(data)
       setSelectedRows(new Set(data.rows.map((r) => r.hash)))
       setStep('preview')
-    } catch { toast.error(t('import.errorFile')) }
+    } catch (err) {
+      console.error('import preview failed:', err)
+      toast.error(t('import.errorFile'))
+    }
     finally { setLoading(false) }
   }
 
