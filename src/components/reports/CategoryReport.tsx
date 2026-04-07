@@ -1,4 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { useTranslation } from 'react-i18next'
 import { useCategoryReport } from '@/hooks/useReports'
 import { TableSkeleton } from '@/components/common/Skeleton'
 import { formatMoney } from '@/utils/money'
@@ -7,6 +8,7 @@ import { useUIStore } from '@/store/uiStore'
 const COLORS = ['#2563eb', '#16a34a', '#dc2626', '#d97706', '#7c3aed', '#0891b2', '#be185d', '#65a30d']
 
 export function CategoryReport() {
+  const { t } = useTranslation()
   const { data, isLoading } = useCategoryReport()
   const currency = useUIStore((s) => s.currency)
 
@@ -35,7 +37,7 @@ export function CategoryReport() {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                {['Categoría', 'Total', '%'].map((h) => (
+                {[t('reports.category'), t('reports.total'), '%'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
