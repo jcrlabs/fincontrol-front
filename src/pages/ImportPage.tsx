@@ -93,12 +93,12 @@ export function ImportPage() {
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('import.dropzone')}</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('import.dropzoneFormats')}</p>
           {/* label nativo: funciona en iOS Safari, Android Chrome, y desktop sin JS tricks */}
-          <label className="mt-4 inline-block cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
+          <label className="relative mt-4 inline-block cursor-pointer overflow-hidden rounded-md px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm">
             {t('import.selectFile')}
             <input
               type="file"
               accept=".csv,text/csv,.ofx,.qfx,application/x-ofx,application/vnd.intu.qfx"
-              className="sr-only"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]) }}
             />
           </label>
