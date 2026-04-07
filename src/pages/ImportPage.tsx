@@ -25,12 +25,17 @@ export function ImportPage() {
     setLoading(true)
     try {
       const data = await importApi.preview(file)
+      if (!data.rows || data.rows.length === 0) {
+        toast.error(t('import.errorNoRows'))
+        return
+      }
       setPreview(data)
       setSelectedRows(new Set(data.rows.map((r) => r.hash)))
       setStep('preview')
     } catch (err) {
-      console.error('import preview failed:', err)
-      toast.error(t('import.errorFile'))
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('import preview failed:', msg)
+      toast.error(`${t('import.errorFile')}: ${msg}`)
     }
     finally { setLoading(false) }
   }

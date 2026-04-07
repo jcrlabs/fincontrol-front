@@ -3,9 +3,12 @@ export interface ColumnMapping {
   date_col: number
   description_col: number
   amount_col: number
+  debit_col: number
+  credit_col: number
   currency_col: number
   date_format: string
   default_currency: string
+  separator: string
 }
 
 export interface ImportRow {

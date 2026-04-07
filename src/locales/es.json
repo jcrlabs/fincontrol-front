@@ -260,6 +260,7 @@
     "errorsTitle": "Errores:",
     "newImport": "Nueva importación",
     "errorFile": "Error al procesar el archivo",
+    "errorNoRows": "No se encontraron filas válidas en el archivo",
     "errorImport": "Error al importar",
     "errorSelectAccounts": "Selecciona las cuentas",
     "errorSameAccount": "Las cuentas deben ser distintas"

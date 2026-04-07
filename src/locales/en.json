@@ -260,6 +260,7 @@
     "errorsTitle": "Errors:",
     "newImport": "New import",
     "errorFile": "Error processing file",
+    "errorNoRows": "No valid rows found in file",
     "errorImport": "Error importing",
     "errorSelectAccounts": "Select accounts",
     "errorSameAccount": "Accounts must be different"
