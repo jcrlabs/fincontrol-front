@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAccounts } from '@/hooks/useAccounts'
 import { MoneyDisplay } from '@/components/common/MoneyDisplay'
 import { Badge } from '@/components/common/Badge'
@@ -10,16 +11,17 @@ const typeVariant: Record<AccountType, 'green' | 'red' | 'blue' | 'amber' | 'gra
 }
 
 export function AccountsList() {
+  const { t } = useTranslation()
   const { data: accounts, isLoading } = useAccounts()
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          Cuentas
+          {t('dashboard.accounts')}
         </p>
         <Link to="/accounts" className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-          Ver todas
+          {t('dashboard.viewAll')}
         </Link>
       </div>
       {isLoading ? (
@@ -36,7 +38,7 @@ export function AccountsList() {
             </div>
           ))}
           {!accounts?.length && (
-            <p className="text-sm text-gray-400 dark:text-gray-500">Sin cuentas</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">{t('dashboard.noAccounts')}</p>
           )}
         </div>
       )}

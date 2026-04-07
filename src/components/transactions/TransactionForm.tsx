@@ -3,6 +3,7 @@ import { useForm, useFieldArray, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { useCreateTransaction } from '@/hooks/useTransactions'
 import { useBalanceCheck } from '@/hooks/useBalanceCheck'
 import { useAccounts } from '@/hooks/useAccounts'
@@ -22,19 +23,15 @@ const schema = z.object({
   date: z.string().min(1, 'Requerido'),
   description: z.string().min(1, 'Requerido').max(500),
   category_id: z.string(),
-  entries: z.array(entrySchema).min(2, 'Mínimo 2 líneas'),
+  entries: z.array(entrySchema).min(2),
 })
-
-// ── Quick mode ──────────────────────────────────────────────────────────────
 
 type QuickType = 'expense' | 'income' | 'transfer'
 
-interface QuickFormProps {
-  onAdvanced: () => void
-  onSuccess: () => void
-}
+interface QuickFormProps { onAdvanced: () => void; onSuccess: () => void }
 
 function QuickTransactionForm({ onAdvanced, onSuccess }: QuickFormProps) {
+  const { t } = useTranslation()
   const { data: accounts = [] } = useAccounts()
   const createTx = useCreateTransaction()
 
@@ -49,32 +46,23 @@ function QuickTransactionForm({ onAdvanced, onSuccess }: QuickFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const amt = parseFloat(amount)
-    if (!amt || !payAccountId || !description) {
-      toast.error('Completa todos los campos requeridos')
-      return
-    }
-    if (quickType === 'transfer' && !targetAccountId) {
-      toast.error('Selecciona la cuenta destino')
-      return
-    }
+    if (!amt || !payAccountId || !description) { toast.error(t('transactions.requiredFields')); return }
+    if (quickType === 'transfer' && !targetAccountId) { toast.error(t('transactions.selectTargetAccount')); return }
 
     let entries
     if (quickType === 'expense') {
-      // expense account (debit) + payment account (credit)
-      if (!targetAccountId) { toast.error('Selecciona la cuenta de gasto'); return }
+      if (!targetAccountId) { toast.error(t('transactions.selectExpenseAccount')); return }
       entries = [
         { account_id: targetAccountId, amount: amt, currency: 'EUR' },
         { account_id: payAccountId, amount: -amt, currency: 'EUR' },
       ]
     } else if (quickType === 'income') {
-      // payment account (debit) + income account (credit)
-      if (!targetAccountId) { toast.error('Selecciona la cuenta de ingreso'); return }
+      if (!targetAccountId) { toast.error(t('transactions.selectIncomeAccount')); return }
       entries = [
         { account_id: payAccountId, amount: amt, currency: 'EUR' },
         { account_id: targetAccountId, amount: -amt, currency: 'EUR' },
       ]
     } else {
-      // transfer: source (credit) → destination (debit)
       entries = [
         { account_id: targetAccountId, amount: amt, currency: 'EUR' },
         { account_id: payAccountId, amount: -amt, currency: 'EUR' },
@@ -82,37 +70,23 @@ function QuickTransactionForm({ onAdvanced, onSuccess }: QuickFormProps) {
     }
 
     try {
-      await createTx.mutateAsync({
-        date,
-        description,
-        category_id: categoryId || undefined,
-        entries,
-      })
-      toast.success('Transacción creada')
+      await createTx.mutateAsync({ date, description, category_id: categoryId || undefined, entries })
+      toast.success(t('transactions.created'))
       onSuccess()
-    } catch {
-      toast.error('Error al crear la transacción')
-    }
+    } catch { toast.error(t('transactions.createError')) }
   }
 
-  const labelPay = quickType === 'expense' ? 'Cuenta pago' : quickType === 'income' ? 'Cuenta cobro' : 'Cuenta origen'
-  const labelTarget = quickType === 'expense' ? 'Cuenta de gasto' : quickType === 'income' ? 'Cuenta de ingreso' : 'Cuenta destino'
+  const labelPay = quickType === 'expense' ? t('transactions.quickPayAccount') : quickType === 'income' ? t('transactions.quickReceiveAccount') : t('transactions.quickSourceAccount')
+  const labelTarget = quickType === 'expense' ? t('transactions.quickExpenseAccount') : quickType === 'income' ? t('transactions.quickIncomeAccount') : t('transactions.quickTargetAccount')
+  const inputClass = 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex gap-2">
-        {(['expense', 'income', 'transfer'] as QuickType[]).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setQuickType(t)}
-            className={`flex-1 py-1.5 text-sm rounded-md border transition-colors ${
-              quickType === t
-                ? 'bg-blue-600 border-blue-600 text-white'
-                : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-            }`}
-          >
-            {t === 'expense' ? 'Gasto' : t === 'income' ? 'Ingreso' : 'Transferencia'}
+        {(['expense', 'income', 'transfer'] as QuickType[]).map((tp) => (
+          <button key={tp} type="button" onClick={() => setQuickType(tp)}
+            className={`flex-1 py-1.5 text-sm rounded-md border transition-colors ${quickType === tp ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}>
+            {tp === 'expense' ? t('transactions.quickExpense') : tp === 'income' ? t('transactions.quickIncome') : t('transactions.quickTransfer')}
           </button>
         ))}
       </div>
@@ -120,187 +94,124 @@ function QuickTransactionForm({ onAdvanced, onSuccess }: QuickFormProps) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{labelPay}</label>
-          <select
-            value={payAccountId}
-            onChange={(e) => setPayAccountId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">— Selecciona —</option>
+          <select value={payAccountId} onChange={(e) => setPayAccountId(e.target.value)} className={inputClass}>
+            <option value="">{t('transactions.selectAccount')}</option>
             {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{labelTarget}</label>
-          <select
-            value={targetAccountId}
-            onChange={(e) => setTargetAccountId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">— Selecciona —</option>
+          <select value={targetAccountId} onChange={(e) => setTargetAccountId(e.target.value)} className={inputClass}>
+            <option value="">{t('transactions.selectAccount')}</option>
             {accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Monto</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 tabular-nums"
-          />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('transactions.amount')}</label>
+          <input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.00" className={`${inputClass} tabular-nums`} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Fecha</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('transactions.date')}</label>
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Descripción</label>
-        <input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('transactions.description')}</label>
+        <input value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} />
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Categoría (opcional)</label>
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('transactions.categoryOptional')}</label>
         <CategorySelect value={categoryId} onChange={setCategoryId} className="w-full" />
       </div>
 
       <div className="flex justify-between items-center pt-2">
         <button type="button" onClick={onAdvanced} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-          Modo avanzado ↗
+          {t('transactions.advancedMode')}
         </button>
-        <button
-          type="submit"
-          disabled={createTx.isPending}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-md"
-        >
-          {createTx.isPending ? 'Guardando...' : 'Guardar'}
+        <button type="submit" disabled={createTx.isPending} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-md">
+          {createTx.isPending ? t('common.saving') : t('common.save')}
         </button>
       </div>
     </form>
   )
 }
 
-// ── Advanced mode ────────────────────────────────────────────────────────────
-
-interface AdvancedFormProps {
-  onSimple: () => void
-  onSuccess: () => void
-}
+interface AdvancedFormProps { onSimple: () => void; onSuccess: () => void }
 
 function AdvancedTransactionForm({ onSimple, onSuccess }: AdvancedFormProps) {
+  const { t } = useTranslation()
   const createTx = useCreateTransaction()
 
-  const { register, control, handleSubmit, setValue, formState: { errors } } =
-    useForm<TransactionFormData>({
-      resolver: zodResolver(schema),
-      defaultValues: {
-        date: toISODate(new Date()),
-        description: '',
-        category_id: '',
-        entries: [
-          { account_id: '', amount: '', type: 'debit' },
-          { account_id: '', amount: '', type: 'credit' },
-        ],
-      },
-    })
+  const { register, control, handleSubmit, setValue, formState: { errors } } = useForm<TransactionFormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      date: toISODate(new Date()),
+      description: '',
+      category_id: '',
+      entries: [
+        { account_id: '', amount: '', type: 'debit' },
+        { account_id: '', amount: '', type: 'credit' },
+      ],
+    },
+  })
 
   const { fields, append, remove } = useFieldArray({ control, name: 'entries' })
   const entries = useWatch({ control, name: 'entries' })
   const balance = useBalanceCheck(entries)
 
   const onSubmit = async (data: TransactionFormData) => {
-    if (!balance.isBalanced) {
-      toast.error('El asiento debe cuadrar antes de guardar')
-      return
-    }
+    if (!balance.isBalanced) { toast.error(t('transactions.balancedRequired')); return }
     try {
       await createTx.mutateAsync({
-        date: data.date,
-        description: data.description,
-        category_id: data.category_id || undefined,
+        date: data.date, description: data.description, category_id: data.category_id || undefined,
         entries: data.entries.map((e) => ({
           account_id: e.account_id,
           amount: e.type === 'debit' ? parseFloat(e.amount) : -parseFloat(e.amount),
           currency: 'EUR',
         })),
       })
-      toast.success('Transacción creada')
+      toast.success(t('transactions.created'))
       onSuccess()
-    } catch {
-      toast.error('Error al crear la transacción')
-    }
+    } catch { toast.error(t('transactions.createError')) }
   }
 
   const categoryId = useWatch({ control, name: 'category_id' })
+  const inputClass = 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500'
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Fecha</label>
-          <input
-            type="date"
-            {...register('date')}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('transactions.date')}</label>
+          <input type="date" {...register('date')} className={inputClass} />
           {errors.date && <p className="mt-1 text-xs text-red-600">{errors.date.message}</p>}
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Categoría</label>
-          <CategorySelect
-            value={categoryId}
-            onChange={(v) => setValue('category_id', v)}
-            className="w-full"
-          />
+          <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('transactions.category')}</label>
+          <CategorySelect value={categoryId} onChange={(v) => setValue('category_id', v)} className="w-full" />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Descripción</label>
-        <input
-          {...register('description')}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{t('transactions.description')}</label>
+        <input {...register('description')} className={inputClass} />
         {errors.description && <p className="mt-1 text-xs text-red-600">{errors.description.message}</p>}
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-            Líneas
+            {t('transactions.linesLabel')}
           </label>
-          <button
-            type="button"
-            onClick={() => append({ account_id: '', amount: '', type: 'debit' })}
-            className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            + Añadir línea
+          <button type="button" onClick={() => append({ account_id: '', amount: '', type: 'debit' })} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+            {t('transactions.addLine')}
           </button>
         </div>
-
         {fields.map((field, index) => (
-          <EntryRow
-            key={field.id}
-            index={index}
-            register={register}
-            setValue={setValue}
-            typeValue={entries[index]?.type ?? 'debit'}
-            canRemove={fields.length > 2}
-            onRemove={() => remove(index)}
-          />
+          <EntryRow key={field.id} index={index} register={register} setValue={setValue}
+            typeValue={entries[index]?.type ?? 'debit'} canRemove={fields.length > 2} onRemove={() => remove(index)} />
         ))}
       </div>
 
@@ -308,32 +219,22 @@ function AdvancedTransactionForm({ onSimple, onSuccess }: AdvancedFormProps) {
 
       <div className="flex justify-between items-center pt-2">
         <button type="button" onClick={onSimple} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-          ← Modo simple
+          {t('transactions.simpleMode')}
         </button>
-        <button
-          type="submit"
-          disabled={createTx.isPending || !balance.isBalanced}
+        <button type="submit" disabled={createTx.isPending || !balance.isBalanced}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors"
-          title={!balance.isBalanced ? 'El asiento debe cuadrar' : undefined}
-        >
-          {createTx.isPending ? 'Guardando...' : 'Guardar'}
+          title={!balance.isBalanced ? t('transactions.balancedTitle') : undefined}>
+          {createTx.isPending ? t('common.saving') : t('common.save')}
         </button>
       </div>
     </form>
   )
 }
 
-// ── Public component ─────────────────────────────────────────────────────────
-
-interface TransactionFormProps {
-  onSuccess: () => void
-}
+interface TransactionFormProps { onSuccess: () => void }
 
 export function TransactionForm({ onSuccess }: TransactionFormProps) {
   const [advanced, setAdvanced] = useState(false)
-
-  if (advanced) {
-    return <AdvancedTransactionForm onSimple={() => setAdvanced(false)} onSuccess={onSuccess} />
-  }
+  if (advanced) return <AdvancedTransactionForm onSimple={() => setAdvanced(false)} onSuccess={onSuccess} />
   return <QuickTransactionForm onAdvanced={() => setAdvanced(true)} onSuccess={onSuccess} />
 }
