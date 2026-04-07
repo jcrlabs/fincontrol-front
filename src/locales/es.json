@@ -191,7 +191,18 @@
     "month": "Mes",
     "income": "Ingresos",
     "expenses": "Gastos",
-    "result": "Resultado"
+    "result": "Resultado",
+    "totalAssets": "Total activos",
+    "netWorth": "Patrimonio neto",
+    "assets": "Activos",
+    "liabilities": "Pasivos",
+    "equity": "Patrimonio",
+    "cashFlowByMonth": "Flujo de caja neto por mes",
+    "inflow": "Entradas",
+    "outflow": "Salidas",
+    "net": "Neto",
+    "category": "Categoría",
+    "total": "Total"
   },
   "scheduled": {
     "title": "Recurrentes",

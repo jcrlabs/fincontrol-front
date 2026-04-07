@@ -1,6 +1,7 @@
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
 } from 'recharts'
+import { useTranslation } from 'react-i18next'
 import { useCashFlow } from '@/hooks/useReports'
 import { TableSkeleton } from '@/components/common/Skeleton'
 import { formatMoney } from '@/utils/money'
@@ -8,6 +9,7 @@ import { formatMonth } from '@/utils/dates'
 import { useUIStore } from '@/store/uiStore'
 
 export function CashFlow() {
+  const { t } = useTranslation()
   const { data, isLoading } = useCashFlow()
   const currency = useUIStore((s) => s.currency)
 
@@ -24,7 +26,7 @@ export function CashFlow() {
     <div className="space-y-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-5">
         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
-          Flujo de caja neto por mes
+          {t('reports.cashFlowByMonth')}
         </p>
         <ResponsiveContainer width="100%" height={260}>
           <BarChart data={chartData} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
@@ -46,7 +48,7 @@ export function CashFlow() {
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {['Mes', 'Entradas', 'Salidas', 'Neto'].map((h) => (
+              {[t('reports.month'), t('reports.inflow'), t('reports.outflow'), t('reports.net')].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{h}</th>
               ))}
             </tr>

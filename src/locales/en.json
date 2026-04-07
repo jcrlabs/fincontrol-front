@@ -191,7 +191,18 @@
     "month": "Month",
     "income": "Income",
     "expenses": "Expenses",
-    "result": "Result"
+    "result": "Result",
+    "totalAssets": "Total assets",
+    "netWorth": "Net worth",
+    "assets": "Assets",
+    "liabilities": "Liabilities",
+    "equity": "Equity",
+    "cashFlowByMonth": "Net cash flow by month",
+    "inflow": "Inflow",
+    "outflow": "Outflow",
+    "net": "Net",
+    "category": "Category",
+    "total": "Total"
   },
   "scheduled": {
     "title": "Scheduled",
