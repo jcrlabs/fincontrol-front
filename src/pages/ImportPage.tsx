@@ -26,6 +26,7 @@ export function ImportPage() {
     try {
       const data = await importApi.preview(file)
       if (!data.rows || data.rows.length === 0) {
+        console.error('import: 0 rows parsed. mapping detected by backend:', JSON.stringify(data.suggested_mapping, null, 2))
         toast.error(t('import.errorNoRows'))
         return
       }
