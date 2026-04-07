@@ -43,7 +43,7 @@ export function RecentTransactions() {
               </div>
             )
           })}
-          {!data?.items.length && (
+          {!data?.items?.length && (
             <p className="text-sm text-gray-400 dark:text-gray-500">Sin transacciones</p>
           )}
         </div>
