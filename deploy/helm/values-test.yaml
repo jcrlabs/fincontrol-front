@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  tag: develop-abc1234
+  tag: develop-f742520
   pullPolicy: Always
 
 ingress:
