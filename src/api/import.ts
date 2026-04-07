@@ -5,9 +5,8 @@ export const importApi = {
   preview: async (file: File): Promise<ImportPreview> => {
     const form = new FormData()
     form.append('file', file)
-    const { data } = await api.post<ImportPreview>('/import/preview', form, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
+    // Do NOT set Content-Type manually — browser must set it with the correct boundary.
+    const { data } = await api.post<ImportPreview>('/import/preview', form)
     return data
   },
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { importApi } from '@/api/import'
@@ -19,7 +19,6 @@ export function ImportPage() {
   const [categoryId, setCategoryId] = useState('')
   const [loading, setLoading] = useState(false)
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
-  const fileRef = useRef<HTMLInputElement>(null)
   const { data: accounts = [] } = useAccounts()
 
   const handleFile = async (file: File) => {
@@ -88,12 +87,21 @@ export function ImportPage() {
       </div>
 
       {step === 'upload' && (
-        <div onDrop={handleDrop} onDragOver={(e) => e.preventDefault()} onClick={() => fileRef.current?.click()}
-          className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-12 text-center cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors">
+        <div onDrop={handleDrop} onDragOver={(e) => e.preventDefault()}
+          className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-12 text-center transition-colors hover:border-blue-400 dark:hover:border-blue-500">
           <div className="text-4xl mb-3 text-gray-300 dark:text-gray-600">📥</div>
           <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('import.dropzone')}</p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{t('import.dropzoneFormats')}</p>
-          <input ref={fileRef} type="file" accept=".csv,.ofx,.qfx" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]) }} />
+          {/* label nativo: funciona en iOS Safari, Android Chrome, y desktop sin JS tricks */}
+          <label className="mt-4 inline-block cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
+            {t('import.selectFile')}
+            <input
+              type="file"
+              accept=".csv,text/csv,.ofx,.qfx,application/x-ofx,application/vnd.intu.qfx"
+              className="sr-only"
+              onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]) }}
+            />
+          </label>
           {loading && <p className="mt-4 text-sm text-blue-600 dark:text-blue-400">{t('import.processing')}</p>}
         </div>
       )}
