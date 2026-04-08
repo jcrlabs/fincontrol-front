@@ -34,6 +34,6 @@ export interface ImportResult {
 export interface ConfirmImportInput {
   rows: ImportRow[]
   debit_account_id: string
-  credit_account_id: string
+  credit_account_id?: string
   category_id?: string
 }

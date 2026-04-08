@@ -15,7 +15,6 @@ export function ImportPage() {
   const [preview, setPreview] = useState<ImportPreview | null>(null)
   const [result, setResult] = useState<ImportResult | null>(null)
   const [debitId, setDebitId] = useState('')
-  const [creditId, setCreditId] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [loading, setLoading] = useState(false)
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
@@ -56,12 +55,11 @@ export function ImportPage() {
   }
 
   const handleConfirm = async () => {
-    if (!debitId || !creditId) { toast.error(t('import.errorSelectAccounts')); return }
-    if (debitId === creditId) { toast.error(t('import.errorSameAccount')); return }
+    if (!debitId) { toast.error(t('import.errorSelectAccounts')); return }
     const rows: ImportRow[] = (preview?.rows ?? []).filter((r) => selectedRows.has(r.hash))
     setLoading(true)
     try {
-      const res = await importApi.confirm({ rows, debit_account_id: debitId, credit_account_id: creditId, category_id: categoryId || undefined })
+      const res = await importApi.confirm({ rows, debit_account_id: debitId, category_id: categoryId || undefined })
       setResult(res)
       setStep('result')
     } catch { toast.error(t('import.errorImport')) }
@@ -70,7 +68,7 @@ export function ImportPage() {
 
   const reset = () => {
     setStep('upload'); setPreview(null); setResult(null)
-    setDebitId(''); setCreditId(''); setCategoryId('')
+    setDebitId(''); setCategoryId('')
     setSelectedRows(new Set())
   }
 
@@ -169,13 +167,6 @@ export function ImportPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('import.debitAccount')}</label>
               <select value={debitId} onChange={(e) => setDebitId(e.target.value)} className={selectClass}>
-                <option value="">{t('import.selectAccount')}</option>
-                {accounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.type})</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('import.creditAccount')}</label>
-              <select value={creditId} onChange={(e) => setCreditId(e.target.value)} className={selectClass}>
                 <option value="">{t('import.selectAccount')}</option>
                 {accounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.type})</option>)}
               </select>
