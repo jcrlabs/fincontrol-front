@@ -201,11 +201,11 @@ export function ImportPage() {
               <p className="text-xs text-red-700 dark:text-red-300 mt-1">{t('import.errors')}</p>
             </div>
           </div>
-          {result.errors.length > 0 && (
+          {(result.errors ?? []).length > 0 && (
             <div className="bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 p-4">
               <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-2">{t('import.errorsTitle')}</p>
               <ul className="text-xs text-red-600 dark:text-red-400 space-y-1 list-disc list-inside">
-                {result.errors.map((e, i) => <li key={i}>{e}</li>)}
+                {(result.errors ?? []).map((e, i) => <li key={i}>{e}</li>)}
               </ul>
             </div>
           )}
