@@ -26,7 +26,7 @@ export function ReportsPage() {
         <ReportDateSelector />
       </div>
 
-      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
         {TABS.map((tb) => (
           <button
             key={tb.id}

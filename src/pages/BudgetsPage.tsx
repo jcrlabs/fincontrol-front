@@ -96,10 +96,10 @@ export function BudgetsPage() {
             const barColor = pct >= 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-500' : 'bg-green-500'
             return (
               <div key={b.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-900 dark:text-white">{b.category_name ?? '—'}</span>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-gray-500 dark:text-gray-400 tabular-nums">
+                <div className="flex flex-wrap items-center justify-between gap-y-1 mb-2">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white min-w-0 mr-2">{b.category_name ?? '—'}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-sm text-gray-500 dark:text-gray-400 tabular-nums text-right">
                       <MoneyDisplay amount={b.spent ?? 0} currency={currency} /> / {formatMoney(b.amount, currency)}
                     </span>
                     <span className={`text-xs font-semibold ${pct >= 100 ? 'text-red-600 dark:text-red-400' : pct >= 80 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
